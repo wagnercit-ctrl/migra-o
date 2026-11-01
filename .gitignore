@@ -1,0 +1,5 @@
+.env
+migracao_infinitum_snapshot.json
+migracao_infinitum_estado.json
+__pycache__/
+*.tmp
