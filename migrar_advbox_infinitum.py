@@ -101,7 +101,11 @@ def advbox_get(endpoint, params=None):
          'User-Agent': 'advbox-para-infinitum/1.0', 'Accept': 'application/json'}
     for tentativa in range(5):
         _lim_advbox.esperar()
-        r = requests.get(f'{ADVBOX_URL}{endpoint}', headers=h, params=params, timeout=90)
+        try:
+            r = requests.get(f'{ADVBOX_URL}{endpoint}', headers=h, params=params, timeout=90)
+        except (requests.ConnectionError, requests.Timeout):
+            time.sleep(10 * (tentativa + 1))
+            continue
         if r.status_code == 429:
             time.sleep(int(r.headers.get('Retry-After', 30)))
             continue
@@ -118,8 +122,12 @@ def infinitum(metodo, endpoint, params=None, corpo=None):
          'Content-Type': 'application/json', 'Accept': 'application/json'}
     for tentativa in range(5):
         _lim_infinitum.esperar()
-        r = requests.request(metodo, f'{INFINITUM_URL}{endpoint}', headers=h,
-                             params=params, json=corpo, timeout=60)
+        try:
+            r = requests.request(metodo, f'{INFINITUM_URL}{endpoint}', headers=h,
+                                 params=params, json=corpo, timeout=60)
+        except (requests.ConnectionError, requests.Timeout):
+            time.sleep(10 * (tentativa + 1))
+            continue
         if r.status_code == 429:
             time.sleep(int(r.headers.get('Retry-After', 15)))
             continue
