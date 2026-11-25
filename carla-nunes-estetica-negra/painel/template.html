@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel Carla Nunes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#17100c; --bg2:#20160f; --card:#261a12; --card2:#2e2017; --linha:#3d2b1f;
+  --txt:#f3e9dd; --txt2:#c7b4a2; --txt3:#8f7a68;
+  --ouro:#d4a85a; --bronze:#b07a3b; --cobre:#c46a3c;
+  --bom:#7fb38a; --ruim:#e07a6a; --aviso:#e0b25a;
+  --sombra:0 1px 0 rgba(255,255,255,.03) inset, 0 10px 30px rgba(0,0,0,.25);
+}
+:root[data-tema="claro"]{
+  --bg:#f6efe6; --bg2:#efe4d6; --card:#fffaf4; --card2:#f8efe3; --linha:#e5d5c1;
+  --txt:#2b1b14; --txt2:#5e4636; --txt3:#9a8270;
+  --ouro:#9a6a26; --bronze:#8a5a24; --cobre:#a8532a;
+  --bom:#3f8a52; --ruim:#b8473a; --aviso:#a87a1f;
+  --sombra:0 1px 2px rgba(60,30,10,.06), 0 8px 24px rgba(60,30,10,.06);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--txt);font:14px/1.5 Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--ouro)}
+.wrap{max-width:1320px;margin:0 auto;padding:0 24px 60px}
+header{position:sticky;top:0;z-index:5;background:linear-gradient(var(--bg) 70%,transparent);padding:18px 0 14px}
+.topo{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.marca{display:flex;align-items:center;gap:12px;margin-right:auto}
+.mono{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--ouro);
+  font-family:'Cormorant Garamond',serif;font-weight:700;font-size:19px;color:var(--ouro);letter-spacing:.5px}
+.marca h1{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:26px;margin:0;line-height:1}
+.marca small{color:var(--txt3);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+.abas{display:flex;background:var(--card);border:1px solid var(--linha);border-radius:10px;padding:3px}
+.abas button{background:none;border:0;color:var(--txt2);font:600 13px Manrope;padding:8px 14px;border-radius:7px;cursor:pointer}
+.abas button.on{background:var(--ouro);color:#1a110b}
+.btn-ic{background:var(--card);border:1px solid var(--linha);color:var(--txt2);width:38px;height:38px;border-radius:10px;
+  display:grid;place-items:center;cursor:pointer}
+.gerado{color:var(--txt3);font-size:12px;width:100%;margin-top:6px}
+.demo{background:repeating-linear-gradient(135deg,var(--card2) 0 12px,var(--card) 12px 24px);border:1px dashed var(--aviso);
+  color:var(--aviso);padding:10px 14px;border-radius:10px;font-weight:600;margin:6px 0 18px;font-size:13px}
+.sec{margin-top:28px}
+.sec>h2{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:22px;margin:0 0 12px;display:flex;align-items:center;gap:10px}
+.sec>h2 svg{color:var(--ouro)}
+.sec>h2 .sub{font:500 12px Manrope;color:var(--txt3);margin-left:auto}
+.card{background:var(--card);border:1px solid var(--linha);border-radius:14px;padding:18px;box-shadow:var(--sombra)}
+.grid{display:grid;gap:14px}
+.grid>*{min-width:0}
+.abas{max-width:100%}
+.kpis{grid-template-columns:repeat(6,minmax(0,1fr))}
+.kpi .rot{color:var(--txt3);font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.kpi .val{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;line-height:1.1;margin:6px 0 4px}
+.kpi .det{font-size:12px;color:var(--txt2)}
+.var{font-size:12px;font-weight:700}
+.var.up{color:var(--bom)} .var.down{color:var(--ruim)} .var.neu{color:var(--txt3)}
+.barra-meta{height:5px;background:var(--card2);border-radius:3px;margin-top:8px;overflow:hidden}
+.barra-meta i{display:block;height:100%;background:var(--ouro)}
+.alertas{display:grid;gap:8px}
+.alerta{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border-radius:10px;background:var(--card);border:1px solid var(--linha);border-left:3px solid var(--txt3)}
+.alerta.critico{border-left-color:var(--ruim)} .alerta.atencao{border-left-color:var(--aviso)} .alerta.bom{border-left-color:var(--bom)}
+.alerta svg{flex:none;margin-top:2px}
+.alerta.critico svg{color:var(--ruim)} .alerta.atencao svg{color:var(--aviso)} .alerta.bom svg{color:var(--bom)}
+.duas{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.tres{grid-template-columns:repeat(3,minmax(0,1fr))}
+.graf{position:relative;height:280px}
+.graf.peq{height:220px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;color:var(--txt3);font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--linha);cursor:pointer;white-space:nowrap}
+td{padding:10px;border-bottom:1px solid var(--linha);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.tabela{overflow-x:auto}
+.st{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--txt2)}
+.st i{width:7px;height:7px;border-radius:50%;background:var(--txt3)}
+.st.ACTIVE i{background:var(--bom)} .st.PAUSED i{background:var(--aviso)}
+.tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;background:var(--card2);color:var(--txt2)}
+.tag.ok{color:var(--bom)} .tag.mau{color:var(--ruim)}
+.ads{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.ad{padding:0;overflow:hidden;display:flex;flex-direction:column}
+.ad .img{aspect-ratio:16/10;background:linear-gradient(135deg,var(--card2),var(--bg2));display:grid;place-items:center;color:var(--txt3)}
+.ad .img img{width:100%;height:100%;object-fit:cover}
+.ad .corpo{padding:12px 14px}
+.ad b{display:block;font-size:13.5px;margin-bottom:2px}
+.ad small{color:var(--txt3);font-size:11.5px}
+.ad .nums{display:flex;justify-content:space-between;margin-top:10px;font-size:12px;color:var(--txt2)}
+.ad .nums strong{display:block;color:var(--txt);font-size:15px}
+.rank{position:absolute;top:10px;left:10px;background:var(--ouro);color:#1a110b;font-weight:800;font-size:11px;padding:2px 8px;border-radius:20px}
+.hbar{display:grid;grid-template-columns:120px 1fr 90px;gap:10px;align-items:center;margin:8px 0;font-size:12.5px}
+.hbar .t{height:8px;background:var(--card2);border-radius:4px;overflow:hidden}
+.hbar .t i{display:block;height:100%;background:linear-gradient(90deg,var(--bronze),var(--ouro));border-radius:4px}
+.hbar span:last-child{text-align:right;color:var(--txt2);font-variant-numeric:tabular-nums}
+.perfil{display:flex;align-items:center;gap:14px}
+.perfil .foto{width:58px;height:58px;border-radius:50%;background:var(--card2);border:2px solid var(--ouro);overflow:hidden;flex:none}
+.perfil .foto img{width:100%;height:100%;object-fit:cover}
+.perfil b{font-size:16px} .perfil small{color:var(--txt3)}
+.mini{grid-template-columns:repeat(3,1fr);margin-top:16px}
+.mini div{background:var(--card2);border-radius:10px;padding:10px 12px}
+.mini span{display:block;color:var(--txt3);font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+.mini strong{font-size:18px}
+.posts{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+.post{padding:0;overflow:hidden;text-decoration:none;color:inherit}
+.post .img{aspect-ratio:4/5;background:linear-gradient(160deg,var(--card2),var(--bg2));position:relative;display:flex;align-items:flex-end;padding:10px;color:var(--txt2);font-size:12px}
+.post .img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.post .fmt{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.55);color:#fff;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:20px;z-index:1}
+.post .corpo{padding:10px 12px;font-size:12px;color:var(--txt2)}
+.post .corpo strong{color:var(--txt);font-size:15px}
+.erro{color:var(--txt2);border:1px dashed var(--linha);border-radius:12px;padding:18px;background:var(--card)}
+.erro b{color:var(--aviso)}
+.wpp{color:var(--bom);text-decoration:none;font-weight:600}
+footer{margin-top:40px;color:var(--txt3);font-size:12px;text-align:center}
+@media (max-width:1100px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.duas,.tres{grid-template-columns:1fr}}
+@media (max-width:640px){.wrap{padding:0 16px 40px}.kpis{grid-template-columns:repeat(2,1fr)}.kpi .val{font-size:26px}
+  .marca h1{font-size:21px}.abas{width:100%;overflow-x:auto}.abas button{flex:1;padding:8px 8px;white-space:nowrap}.mini{grid-template-columns:repeat(2,1fr)}
+  .hbar{grid-template-columns:90px 1fr 70px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="topo">
+      <div class="marca">
+        <div class="mono">CN</div>
+        <div><h1 id="nome"></h1><small>Painel de marketing - Meta</small></div>
+      </div>
+      <div class="abas" id="abas"></div>
+      <button class="btn-ic" id="tema" title="Tema claro/escuro">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+    </div>
+    <div class="gerado" id="gerado"></div>
+  </header>
+  <div id="app"></div>
+  <footer>Dados da Meta (Facebook e Instagram). Leads = conversas iniciadas pelo anuncio + formularios + leads do site. Atualize rodando <code>atualizar_painel.bat</code>.</footer>
+</div>
+
+<script>
+const D = /*__DADOS__*/null;
+
+const IC = {
+  alerta:'<path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>',
+  ok:'<path d="M20 6 9 17l-5-5"/>',
+  anuncio:'<path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1zM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>',
+  grafico:'<path d="M3 3v18h18M7 15l4-4 3 3 5-6"/>',
+  pessoas:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/>',
+  insta:'<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/>',
+  lista:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+  imagem:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>',
+  sino:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/>',
+  funil:'<path d="M22 3H2l8 9.5V19l4 2v-8.5L22 3z"/>',
+};
+const ic = (n, s=20) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${IC[n]}</svg>`;
+
+const brl = v => v==null ? '-' : v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const int = v => v==null ? '-' : Math.round(v).toLocaleString('pt-BR');
+const pct = v => v==null ? '-' : v.toLocaleString('pt-BR',{maximumFractionDigits:2})+'%';
+const esc = s => String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const dataBR = s => s ? s.slice(8,10)+'/'+s.slice(5,7) : '';
+function variacao(a, b, menorMelhor=false){
+  if (a==null || !b) return '<span class="var neu">sem comparativo</span>';
+  const v = (a-b)/b*100, bom = menorMelhor ? v<0 : v>0;
+  const cls = Math.abs(v)<1 ? 'neu' : (bom?'up':'down');
+  return `<span class="var ${cls}">${v>0?'+':''}${v.toFixed(0)}%</span> <span class="det">vs. anterior</span>`;
+}
+const erroBloco = (titulo, b) => `<div class="erro"><b>${titulo}: sem acesso.</b><br>${esc(b.erro||'')}<br><small>Confira o passo a passo em docs/COMO_LIBERAR_ACESSO_META.md.</small></div>`;
+
+let periodo = '30d', graficos = [];
+try { periodo = localStorage.getItem('cn_periodo') || '30d'; } catch(e) {}
+try { const t = localStorage.getItem('cn_tema'); if (t) document.documentElement.dataset.tema = t; } catch(e) {}
+
+document.getElementById('tema').onclick = () => {
+  const r = document.documentElement, novo = r.dataset.tema === 'claro' ? '' : 'claro';
+  if (novo) r.dataset.tema = novo; else delete r.dataset.tema;
+  try { localStorage.setItem('cn_tema', novo); } catch(e) {}
+  render();
+};
+
+function cores(){
+  const s = getComputedStyle(document.documentElement);
+  return {ouro:s.getPropertyValue('--ouro').trim(), bronze:s.getPropertyValue('--bronze').trim(),
+    txt3:s.getPropertyValue('--txt3').trim(), linha:s.getPropertyValue('--linha').trim(), bom:s.getPropertyValue('--bom').trim()};
+}
+
+function abas(){
+  const el = document.getElementById('abas'); el.innerHTML = '';
+  Object.entries(D.periodos).forEach(([k,p]) => {
+    const b = document.createElement('button'); b.textContent = p.rotulo; if (k===periodo) b.className='on';
+    b.onclick = () => { periodo = k; try{localStorage.setItem('cn_periodo',k)}catch(e){}; render(); };
+    el.appendChild(b);
+  });
+}
+
+function secao(icone, titulo, sub, corpo){
+  return `<section class="sec"><h2>${ic(icone)}${titulo}${sub?`<span class="sub">${sub}</span>`:''}</h2>${corpo}</section>`;
+}
+
+function kpis(P){
+  const a = P.anuncios, i = P.instagram, out = [];
+  if (a.ok){
+    const t = a.total, an = a.anterior, alvo = D.metas?.cpl_alvo;
+    out.push(`<div class="card kpi"><div class="rot">Investimento</div><div class="val">${brl(t.gasto)}</div>${variacao(t.gasto, an.gasto)}
+      ${D.metas?.orcamento_mensal && (periodo==='mes'||periodo==='mes_passado') ? `<div class="barra-meta"><i style="width:${Math.min(100,t.gasto/D.metas.orcamento_mensal*100)}%"></i></div><div class="det">${Math.round(t.gasto/D.metas.orcamento_mensal*100)}% de ${brl(D.metas.orcamento_mensal)}/mes</div>`:''}</div>`);
+    out.push(`<div class="card kpi"><div class="rot">Leads</div><div class="val">${int(t.leads.total)}</div>${variacao(t.leads.total, an.leads.total)}
+      <div class="det">${int(t.leads.conversas)} conversas - ${int(t.leads.formularios)} formularios - ${int(t.leads.site)} site</div></div>`);
+    out.push(`<div class="card kpi"><div class="rot">Custo por lead</div><div class="val">${brl(t.cpl)}</div>${variacao(t.cpl, an.cpl, true)}
+      ${alvo?`<div class="det">Meta: ${brl(alvo)} <span class="tag ${t.cpl&&t.cpl<=alvo?'ok':'mau'}">${t.cpl&&t.cpl<=alvo?'dentro':'acima'}</span></div>`:''}</div>`);
+    out.push(`<div class="card kpi"><div class="rot">Pessoas alcancadas</div><div class="val">${int(t.alcance)}</div>${variacao(t.alcance, an.alcance)}
+      <div class="det">${int(t.impressoes)} impressoes - freq. ${t.frequencia.toFixed(1)}</div></div>`);
+    out.push(`<div class="card kpi"><div class="rot">Taxa de clique</div><div class="val">${pct(t.ctr)}</div>${variacao(t.ctr, an.ctr)}
+      <div class="det">${int(t.cliques)} cliques - CPC ${brl(t.cpc)}</div></div>`);
+  }
+  if (i.ok){
+    const novos = i.metricas.follows_and_unfollows;
+    out.push(`<div class="card kpi"><div class="rot">Seguidores Instagram</div><div class="val">${int(i.perfil.seguidores)}</div>
+      ${novos!=null?`<span class="var up">+${int(novos)}</span> <span class="det">novos no periodo</span>`:''}
+      <div class="det">Alcance organico ${int(i.metricas.reach)}</div></div>`);
+  }
+  if (!a.ok) out.unshift(`<div style="grid-column:1/-1">${erroBloco('Anuncios', a)}</div>`);
+  return `<div class="grid kpis">${out.join('')}</div>`;
+}
+
+function blocoAlertas(P){
+  if (!P.alertas?.length) return '';
+  const icone = {critico:'alerta', atencao:'alerta', bom:'ok'};
+  return secao('sino','O que olhar agora','', `<div class="alertas">${P.alertas.map(x =>
+    `<div class="alerta ${x.nivel}">${ic(icone[x.nivel],18)}<div>${esc(x.texto)}</div></div>`).join('')}</div>`);
+}
+
+function blocoEvolucao(P){
+  const a = P.anuncios; if (!a.ok) return '';
+  const t = a.total, mx = Math.max(t.impressoes,1);
+  const etapa = (rot, v, base) => `<div class="hbar"><span>${rot}</span><div class="t"><i style="width:${Math.max(2,v/base*100)}%"></i></div><span>${int(v)}</span></div>`;
+  return secao('grafico','Investimento e leads por dia', `${dataBR(a.periodo.inicio)} a ${dataBR(a.periodo.fim)}`,
+    `<div class="grid duas"><div class="card"><div class="graf"><canvas id="gDia"></canvas></div></div>
+     <div class="card"><b style="font-size:13px">Funil do periodo</b>
+       ${etapa('Impressoes', t.impressoes, mx)}${etapa('Alcance', t.alcance, mx)}${etapa('Cliques', t.cliques, mx)}${etapa('Leads', t.leads.total, mx)}
+       <div class="mini grid" style="grid-template-columns:1fr 1fr">
+         <div><span>Clique - lead</span><strong>${t.cliques?pct(t.leads.total/t.cliques*100):'-'}</strong></div>
+         <div><span>CPM</span><strong>${brl(t.cpm)}</strong></div></div>
+     </div></div>`);
+}
+
+let ordem = {campanhas:['gasto',-1], posts:['alcance',-1]};
+function ordenar(lista, chave){
+  const [c, d] = ordem[chave];
+  const val = x => c==='leads' ? x.leads?.total : x[c];
+  return [...lista].sort((a,b) => { const va=val(a), vb=val(b);
+    if (va==null) return 1; if (vb==null) return -1;
+    return (typeof va==='string' ? va.localeCompare(vb) : va-vb) * d; });
+}
+window.ordenarPor = (chave, c) => { const o = ordem[chave]; ordem[chave] = [c, o[0]===c ? -o[1] : -1]; render(); };
+
+function blocoCampanhas(P){
+  const a = P.anuncios; if (!a.ok) return '';
+  const cplConta = a.total.cpl;
+  const th = (c, rot, n) => `<th class="${n?'n':''}" onclick="ordenarPor('campanhas','${c}')">${rot}</th>`;
+  const linhas = ordenar(a.campanhas,'campanhas').map(c => {
+    const tag = c.cpl==null ? (c.gasto>0?'<span class="tag mau">sem lead</span>':'') :
+      `<span class="tag ${cplConta && c.cpl<=cplConta?'ok':'mau'}">${brl(c.cpl)}</span>`;
+    return `<tr><td><b>${esc(c.nome)}</b><br><span class="st ${c.status}"><i></i>${c.status==='ACTIVE'?'Ativa':c.status==='PAUSED'?'Pausada':esc(c.status)}</span>
+      ${c.orcamento_diario?`<small style="color:var(--txt3)"> - ${brl(c.orcamento_diario)}/dia</small>`:''}</td>
+      <td class="n">${brl(c.gasto)}</td><td class="n">${int(c.leads.total)}</td><td class="n">${tag}</td>
+      <td class="n">${int(c.alcance)}</td><td class="n">${pct(c.ctr)}</td><td class="n">${c.frequencia?c.frequencia.toFixed(1):'-'}</td></tr>`;}).join('');
+  return secao('anuncio','Campanhas', `${a.campanhas.filter(c=>c.status==='ACTIVE').length} ativas - clique no titulo da coluna para ordenar`,
+    `<div class="card tabela"><table><thead><tr>${th('nome','Campanha')}${th('gasto','Investido',1)}${th('leads','Leads',1)}${th('cpl','Custo/lead',1)}${th('alcance','Alcance',1)}${th('ctr','CTR',1)}${th('frequencia','Freq.',1)}</tr></thead><tbody>${linhas}</tbody></table></div>`);
+}
+
+function blocoAnuncios(P){
+  const a = P.anuncios; if (!a.ok || !a.anuncios.length) return '';
+  const cards = a.anuncios.slice(0,8).map((x,k) => `<div class="card ad"><div class="img" style="position:relative">
+      ${k<3 && x.cpl?`<span class="rank">#${k+1}</span>`:''}${x.miniatura?`<img src="${esc(x.miniatura)}" alt="" loading="lazy">`:ic('imagem',28)}</div>
+    <div class="corpo"><b>${esc(x.nome)}</b><small>${esc(x.campanha)}</small>
+    <div class="nums"><div>Leads<strong>${int(x.leads.total)}</strong></div><div>Custo/lead<strong>${brl(x.cpl)}</strong></div><div>CTR<strong>${pct(x.ctr)}</strong></div></div></div></div>`).join('');
+  return secao('imagem','Anuncios que mais trazem lead','ordenado pelo menor custo por lead', `<div class="grid ads">${cards}</div>`);
+}
+
+function blocoPublico(P){
+  const a = P.anuncios; if (!a.ok) return '';
+  const ig = a.publico.idade_genero, faixas = {}, gen = {female:0, male:0, unknown:0};
+  ig.forEach(l => { faixas[l.idade] = (faixas[l.idade]||0) + l.leads; gen[l.genero] = (gen[l.genero]||0) + l.leads; });
+  const totF = Object.values(faixas).reduce((s,v)=>s+v,0) || 1;
+  const fx = Object.entries(faixas).map(([k,v]) => `<div class="hbar"><span>${esc(k)} anos</span><div class="t"><i style="width:${v/Math.max(...Object.values(faixas),1)*100}%"></i></div><span>${Math.round(v/totF*100)}%</span></div>`).join('');
+  const totG = (gen.female+gen.male+gen.unknown) || 1;
+  const gens = `<div class="mini grid" style="grid-template-columns:1fr 1fr 1fr"><div><span>Mulheres</span><strong>${Math.round(gen.female/totG*100)}%</strong></div><div><span>Homens</span><strong>${Math.round(gen.male/totG*100)}%</strong></div><div><span>Nao inf.</span><strong>${Math.round(gen.unknown/totG*100)}%</strong></div></div>`;
+  const mxR = Math.max(...a.publico.regioes.map(r=>r.gasto),1);
+  const reg = a.publico.regioes.map(r => `<div class="hbar"><span>${esc(r.regiao)}</span><div class="t"><i style="width:${r.gasto/mxR*100}%"></i></div><span>${int(r.leads)} leads</span></div>`).join('');
+  const nomePos = {feed:'Feed', story:'Stories', reels:'Reels', facebook_reels:'Reels', instagram_stories:'Stories', classic:'Rede de publico', instagram_explore:'Explorar', marketplace:'Marketplace', video_feeds:'Feed de video', search:'Busca'};
+  const nomePlat = {instagram:'Instagram', facebook:'Facebook', audience_network:'Audience Network', messenger:'Messenger'};
+  const mxP = Math.max(...a.publico.posicionamentos.map(r=>r.gasto),1);
+  const pos = a.publico.posicionamentos.slice(0,7).map(r => `<div class="hbar"><span>${esc((nomePlat[r.plataforma]||r.plataforma)+' '+(nomePos[r.posicao]||r.posicao))}</span><div class="t"><i style="width:${r.gasto/mxP*100}%"></i></div><span>${brl(r.gasto)}</span></div>`).join('');
+  return secao('pessoas','Quem esta virando lead','', `<div class="grid tres">
+    <div class="card"><b style="font-size:13px">Idade (leads)</b>${fx || '<p class="det">Sem dados</p>'}${gens}</div>
+    <div class="card"><b style="font-size:13px">Estados</b>${reg || '<p class="det">Sem dados</p>'}</div>
+    <div class="card"><b style="font-size:13px">Onde o anuncio aparece</b>${pos || '<p class="det">Sem dados</p>'}</div></div>`);
+}
+
+function blocoInstagram(P){
+  const i = P.instagram;
+  if (!i.ok) return secao('insta','Instagram','', erroBloco('Instagram', i));
+  const m = i.metricas, an = i.anteriores || {};
+  const item = (rot, k) => `<div><span>${rot}</span><strong>${int(m[k])}</strong><br>${variacao(m[k], an[k])}</div>`;
+  const pag = D.pagina?.ok ? `<div class="det" style="margin-top:12px">Pagina do Facebook: <b>${int(D.pagina.seguidores)}</b> seguidores</div>` : '';
+  const porFmt = {};
+  i.posts.forEach(p => { if (p.alcance!=null){ (porFmt[p.formato] = porFmt[p.formato]||[]).push(p.alcance); }});
+  const mediaFmt = Object.entries(porFmt).map(([f,v]) => [f, v.reduce((s,x)=>s+x,0)/v.length]).sort((a,b)=>b[1]-a[1]);
+  const mxF = Math.max(...mediaFmt.map(x=>x[1]),1);
+  const fmt = mediaFmt.map(([f,v]) => `<div class="hbar"><span>${esc(f)}</span><div class="t"><i style="width:${v/mxF*100}%"></i></div><span>${int(v)}</span></div>`).join('');
+  const posts = ordenar(i.posts,'posts').slice(0,12).map(p => `<a class="card post" href="${esc(p.link)}" target="_blank" rel="noopener">
+      <div class="img"><span class="fmt">${esc(p.formato)}</span>${p.miniatura?`<img src="${esc(p.miniatura)}" alt="" loading="lazy">`:`<span style="position:relative">${esc(p.legenda.slice(0,70))}</span>`}</div>
+      <div class="corpo"><strong>${int(p.alcance)}</strong> alcance - ${dataBR(p.data)}<br>${int(p.curtidas)} curtidas - ${int(p.comentarios)} coment. - ${int(p.salvos)} salvos</div></a>`).join('');
+  const bt = (c, rot) => `<button class="tag" style="border:0;cursor:pointer;${ordem.posts[0]===c?'color:var(--ouro)':''}" onclick="ordenarPor('posts','${c}')">${rot}</button>`;
+  return secao('insta','Instagram', '@'+esc(i.perfil.usuario||''), `<div class="grid duas">
+      <div class="card"><div class="perfil"><div class="foto">${i.perfil.foto?`<img src="${esc(i.perfil.foto)}" alt="">`:''}</div>
+        <div><b>${esc(i.perfil.nome||'')}</b><br><small>${int(i.perfil.seguidores)} seguidores - ${int(i.perfil.posts)} publicacoes</small></div></div>
+        <div class="grid mini">${item('Alcance','reach')}${item('Contas engajadas','accounts_engaged')}${item('Interacoes','total_interactions')}
+          ${item('Visitas ao perfil','profile_views')}${item('Cliques no link','website_clicks')}${item('Novos seguidores','follows_and_unfollows')}</div>${pag}</div>
+      <div class="card"><b style="font-size:13px">Seguidores novos por dia</b><div class="graf peq"><canvas id="gSeg"></canvas></div>
+        <b style="font-size:13px">Alcance medio por formato</b>${fmt||'<p class="det">Sem posts no periodo</p>'}</div></div>
+    <div style="display:flex;gap:6px;align-items:center;margin:16px 0 10px;flex-wrap:wrap"><span class="det">Posts do periodo (${i.posts.length}) - ordenar por:</span>
+      ${bt('alcance','Alcance')}${bt('salvos','Salvos')}${bt('compartilhamentos','Compartilhamentos')}${bt('comentarios','Comentarios')}${bt('data','Data')}</div>
+    <div class="grid posts">${posts || '<p class="det">Nenhum post no periodo.</p>'}</div>`);
+}
+
+function blocoLeads(){
+  const L = D.leads_formulario;
+  if (!L) return '';
+  if (!L.ok) return secao('lista','Leads dos formularios','', erroBloco('Formularios', L));
+  if (!L.leads.length) return secao('lista','Leads dos formularios','', '<div class="card det">Nenhum lead de formulario ainda.</div>');
+  const campo = (c, ...nomes) => { for (const n of nomes){ const k = Object.keys(c).find(x => x.toLowerCase().includes(n)); if (k) return c[k]; } return ''; };
+  const linhas = L.leads.map(l => {
+    const nome = campo(l.campos,'full_name','nome','name'), tel = campo(l.campos,'phone','telefone','whats');
+    const extra = Object.entries(l.campos).filter(([k]) => !/name|nome|phone|telefone|whats|email/i.test(k)).map(([,v])=>v).join(' - ');
+    const num = tel.replace(/\D/g,'');
+    return `<tr><td>${esc(l.data.slice(8,10)+'/'+l.data.slice(5,7)+' '+l.data.slice(11,16))}</td><td><b>${esc(nome)}</b></td>
+      <td>${num?`<a class="wpp" href="https://wa.me/${num}" target="_blank" rel="noopener">${esc(tel)}</a>`:'-'}</td><td>${esc(extra)}</td><td><small>${esc(l.anuncio||l.campanha||'')}</small></td></tr>`;}).join('');
+  const forms = L.formularios.map(f => `${esc(f.nome)} (${int(f.total)})`).join(' - ');
+  return secao('lista','Leads dos formularios', forms, `<div class="card tabela"><table><thead><tr><th>Quando</th><th>Nome</th><th>WhatsApp</th><th>Interesse</th><th>Anuncio</th></tr></thead><tbody>${linhas}</tbody></table></div>`);
+}
+
+function graficos_(P){
+  graficos.forEach(g => g.destroy()); graficos = [];
+  if (!window.Chart) return;
+  const c = cores();
+  Chart.defaults.color = c.txt3; Chart.defaults.font.family = 'Manrope'; Chart.defaults.borderColor = c.linha;
+  const a = P.anuncios, el = document.getElementById('gDia');
+  if (a.ok && el){
+    graficos.push(new Chart(el, {data:{labels:a.diario.map(d=>dataBR(d.data)), datasets:[
+      {type:'bar', label:'Investido (R$)', data:a.diario.map(d=>d.gasto), backgroundColor:c.bronze+'99', borderRadius:4, yAxisID:'y'},
+      {type:'line', label:'Leads', data:a.diario.map(d=>d.leads.total), borderColor:c.ouro, backgroundColor:c.ouro, tension:.35, pointRadius:2, yAxisID:'y1'}]},
+      options:{maintainAspectRatio:false, interaction:{mode:'index', intersect:false},
+        plugins:{legend:{position:'bottom', labels:{boxWidth:10}}, tooltip:{callbacks:{label:x => x.dataset.yAxisID==='y' ? ' '+brl(x.raw) : ' '+x.raw+' leads'}}},
+        scales:{y:{beginAtZero:true, grid:{color:c.linha}, ticks:{callback:v=>'R$ '+v}}, y1:{position:'right', beginAtZero:true, grid:{display:false}}, x:{grid:{display:false}}}}}));
+  }
+  const i = P.instagram, el2 = document.getElementById('gSeg');
+  if (i.ok && el2 && i.seguidores_dia.length){
+    graficos.push(new Chart(el2, {type:'bar', data:{labels:i.seguidores_dia.map(d=>dataBR(d.data)),
+      datasets:[{label:'Novos seguidores', data:i.seguidores_dia.map(d=>d.novos), backgroundColor:c.ouro+'bb', borderRadius:3}]},
+      options:{maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{grid:{color:c.linha}}}}}));
+  }
+}
+
+function render(){
+  if (!D){ document.getElementById('app').innerHTML = '<div class="erro">Painel sem dados. Rode atualizar_painel.bat.</div>'; return; }
+  document.getElementById('nome').textContent = D.clinica;
+  document.getElementById('gerado').textContent = 'Atualizado em ' + D.gerado_em;
+  abas();
+  const P = D.periodos[periodo] || Object.values(D.periodos)[0];
+  document.getElementById('app').innerHTML =
+    (D.demo ? '<div class="demo">DEMONSTRACAO - numeros ficticios. O painel passa a mostrar os dados reais assim que a clinica liberar o acesso a Meta.</div>' : '') +
+    kpis(P) + blocoAlertas(P) + blocoEvolucao(P) + blocoCampanhas(P) + blocoAnuncios(P) + blocoPublico(P) + blocoInstagram(P) + blocoLeads();
+  graficos_(P);
+}
+render();
+</script>
+</body>
+</html>
